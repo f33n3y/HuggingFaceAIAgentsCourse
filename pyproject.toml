@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "smolagentsfirstagent"
+version = "0.1.0"
+description = "Hugging Face agents course"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+smolagents = "^1.21.3"
+ddgs = "^9.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
