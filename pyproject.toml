@@ -16,6 +16,8 @@ openinference-instrumentation-smolagents = "^0.1.18"
 langfuse = "^3.4.0"
 litellm = "^1.77.1"
 poetry-core = "^2.2.0"
+langchain = "^0.3.27"
+langchain-community = "^0.3.29"
 
 
 [build-system]
