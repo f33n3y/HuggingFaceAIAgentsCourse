@@ -1,14 +1,15 @@
 # Unit 2.1 The smolagents framework
-from smolagents import (CodeAgent, DuckDuckGoSearchTool, InferenceClientModel, tool, Tool, VisitWebpageTool,
-                        FinalAnswerTool, ToolCallingAgent, LiteLLMModel, load_tool)
+from smolagents import (
+    CodeAgent, ToolCallingAgent, LiteLLMModel, tool, Tool, load_tool,
+    DuckDuckGoSearchTool, VisitWebpageTool, FinalAnswerTool
+)
 from langfuse import get_client
 from openinference.instrumentation.smolagents import SmolagentsInstrumentor
-from tools import league_table_tool
 from tools.league_table_tool import LeagueTableTool
-from PIL import Image
 from langchain_community.agent_toolkits.load_tools import load_tools
+from PIL import Image
 
-# Langfuse Telemetry
+### Langfuse Telemetry Setup ###
 langfuse = get_client()
 if langfuse.auth_check():
     print("Langfuse client is authenticated and ready!")
@@ -17,20 +18,14 @@ else:
 
 SmolagentsInstrumentor().instrument()
 
-# Local model
+### Local LLM Setup ###
 model = LiteLLMModel(
     model_id="ollama_chat/qwen2:7b",
     api_base="http://127.0.0.1:11434",
     num_ctx=8192,
 )
 
-
-# Finding a party playlist using DuckDuckGo
-# agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=model)
-# agent.run("Search for the best music recommendations for a Mr Robot themed party")
-
-# Suggest menu based on the occasion
-
+### Tools ###
 @tool
 def suggest_menu(occasion: str) -> str:
     """
@@ -48,47 +43,49 @@ def suggest_menu(occasion: str) -> str:
         return "Custom menu for the butler."
 
 
-# agent = CodeAgent(tools=[suggest_menu], model=model)
-# agent.run("Prepare a formal menu for the party.")
+# Example: DuckDuckGo search tool
+duckduckgo_tool = DuckDuckGoSearchTool()
 
+# Example: Visit webpage tool
+visit_tool = VisitWebpageTool(max_output_length=5000)
 
-# agent = CodeAgent(tools=[], model=InferenceClientModel(), additional_authorized_imports=['datetime'])
+# Example: League table tool (tool defined in a class).
+league_tool = LeagueTableTool()
 
-# Preparing the menu for the party
-# agent.run("Prepare a formal menu for the party.")
-
-# Work out party preparation time
-# agent.run(
-#     """
-#     Alfred needs to prepare for the party. Here are the tasks:
-#     1. Prepare the drinks - 30 minutes
-#     2. Decorate the mansion - 60 minutes
-#     3. Set up the menu - 45 minutes
-#     4. Prepare the music and playlist - 45 minutes
-#
-#     If we start right now, at what time will the party be ready?
-#     """
-# )
-
-# Using a ToolCallingAgent (generates JSON to call tools)
-# agent = ToolCallingAgent(tools=[DuckDuckGoSearchTool()], model=model)
-# agent.run("What was the score in the last game of football played by Celtic Football Club?")
-
-# Using a tool defined in a class
-# agent = CodeAgent(tools=[LeagueTableTool()], model=model)
-# agent.run("How many points does Celtic football club have?")
-
-# Using built-in tools
-# visit_tool = VisitWebpageTool(max_output_length=5000)
-# agent = ToolCallingAgent(tools=[visit_tool], model=model)
-# result = agent.run("Visit https://en.wikipedia.org/wiki/Celtic_F.C. and tell me when the club was founded.")
-
-# Import tool from Hub
+# Example: Importing a remote image generation tool
 # image_gen_tool = load_tool("m-ric/text-to-image", trust_remote_code=True)
-# agent = CodeAgent(tools=[image_gen_tool],model=model, additional_authorized_imports=["PIL.Image"])
-# result = agent.run("Generate an image inspired by the TV show: Mr Robot")
 
-# Using a LangChain tool
+# Example: LangChain tools
 # search_tool = Tool.from_langchain(load_tools(["serpapi"])[0])
-# agent = CodeAgent(tools=[search_tool], model=model)
-# agent.run("Search for Mr Robot themed gift ideas")
+
+### Agent Examples ###
+
+def run_examples():
+    # Example 1: Suggest menu
+    agent_menu = CodeAgent(tools=[suggest_menu], model=model)
+    print(agent_menu.run("Prepare a formal menu for the party."))
+
+    # Example 2: DuckDuckGo search
+    agent_search = CodeAgent(tools=[duckduckgo_tool], model=model)
+    print(agent_search.run("Search for the best music recommendations for a Mr Robot themed party"))
+
+    # Example 3: League table query
+    agent_league = CodeAgent(tools=[league_tool], model=model)
+    print(agent_league.run("How many points does Celtic football club have?"))
+
+    # Example 4: Visit webpage
+    agent_visit = ToolCallingAgent(tools=[visit_tool], model=model)
+    print(agent_visit.run("Visit https://en.wikipedia.org/wiki/Celtic_F.C. and tell me when the club was founded."))
+
+    # Example 5: Remote image generation
+    # agent_image = CodeAgent(tools=[image_gen_tool], model=model, additional_authorized_imports=["PIL.Image"])
+    # print(agent_image.run("Generate an image inspired by the TV show: Mr Robot"))
+
+    # Example 6: LangChain search
+    # agent_langchain = CodeAgent(tools=[search_tool], model=model)
+    # print(agent_langchain.run("Search for Mr Robot themed gift ideas"))
+
+
+### MAIN ###
+if __name__ == "__main__":
+    run_examples()
